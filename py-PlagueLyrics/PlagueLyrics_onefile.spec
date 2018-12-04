@@ -2,7 +2,7 @@
 
 block_cipher = None
 
-from kivy.deps import sdl2, glew
+from kivy.deps import sdl2, glew, gstreamer
 from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal, get_deps_all, hookspath, runtime_hooks
 
 a = Analysis(['PlagueLyrics.py'],
@@ -23,7 +23,7 @@ exe = EXE(pyz, Tree('C:\\repos\\bramvk38\\sw\\py-PlagueLyrics'),
           a.binaries,
           a.zipfiles,
           a.datas,
-          *[Tree(p) for p in (sdl2.dep_bins + glew.dep_bins)],
+          *[Tree(p) for p in (sdl2.dep_bins + glew.dep_bins + gstreamer.dep_bins)],
           [],
           name='PlagueLyrics',
           debug=False,
