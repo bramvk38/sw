@@ -20,56 +20,215 @@
                                 on_release: root.try_video()
                         Button:
                                 text: 'Export .srt'
+                                on_release: root.try_export()
                         Button:
                                 text: 'Hard-subs'
                                 on_release: root.TestFunc()
                         Button:
                                 text: 'Exit'
+                                on_release: root.close_app()
                 GridLayout:
-                        id: Settings
-                        size_hint: .5, .05
+                        id: SelectPartition
+                        size_hint: .3, 0.05
                         pos_hint:{"x":0, "y":.9}
                         cols: 8
                         orientation: 'horizontal'
+                        Button:
+                                text: '<'
+                                on_release: root.PrevPartition()
                         Label:
-                                text: "Start(s):"
-                        TextInput:
-                                id: inp_start0
+                                id: lbl_selected
+                                size_hint: 3, .05
                                 text: "0"
-                                on_text: root.Generate(0)
-                        Label:
-                                text: "BPM:"
-                        TextInput:
-                                id: inp_bpm0
-                                text: "120"
-                                on_text: root.Generate(0)
-                        Label:
-                                text: "Beats:"
-                        TextInput:
-                                id: inp_beat0
-                                text: "4"
-                                on_text: root.Generate(0)
+                        Button:
+                                text: '>'
+                                on_release: root.NextPartition()
                 BoxLayout:
                         id: LyricsList
-                        size_hint: .5, .89
+                        size_hint: .3, .9
                         pos_hint:{"x":0, "y":0}
                         orientation: 'vertical'
                         TextInput:
                                 id: Lyrics
                                 background_color: [.5,.5,.5,.5]
                                 on_text: root.Generate(0)
+                Label:
+                        id: lbl_msg
+                        size_hint: .35, 0.05
+                        pos_hint:{"x":.3, "y":.9}
                 BoxLayout:
                         id: LyricsOutList
-                        size_hint: .5, .51
-                        pos_hint:{"x":.5, "y":0}
+                        size_hint: .35, .9
+                        pos_hint:{"x":.3, "y":0}
                         orientation: 'vertical'
                         TextInput:
                                 id: LyricsOutput
-                                background_color: [.5,.5,.5,.5]                
+                                background_color: [.5,.5,.5,.5] 
+                GridLayout:
+                        id: Settings
+                        size_hint: .33, .5
+                        pos_hint:{"x":.66, "y":0}
+                        rows: 9
+                        orientation: 'vertical'
+                        GridLayout:
+                                cols: 4
+                                orientation: 'horizontal'
+                                Label:
+                                        text: " "
+                                Label:
+                                        text: "Start(ms):"
+                                Label:
+                                        text: "BPM:"
+                                Label:
+                                        text: "Beats:"
+                        GridLayout:
+                                cols: 4
+                                orientation: 'horizontal'
+                                Label:
+                                        id: lbl_0
+                                        text: "1"
+                                TextInput:
+                                        id: inp_start0
+                                        text: "0"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_bpm0
+                                        text: "120"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_beat0
+                                        text: "4"
+                                        on_text: root.Generate(0)               
+                        GridLayout:
+                                cols: 4
+                                orientation: 'horizontal'
+                                Label:
+                                        id: lbl_1
+                                        text: "2"
+                                TextInput:
+                                        id: inp_start1
+                                        text: "0"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_bpm1
+                                        text: "120"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_beat1
+                                        text: "4"
+                                        on_text: root.Generate(0)
+                        GridLayout:
+                                cols: 4
+                                orientation: 'horizontal'
+                                Label:
+                                        id: lbl_2
+                                        text: "3"
+                                TextInput:
+                                        id: inp_start2
+                                        text: "0"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_bpm2
+                                        text: "120"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_beat2
+                                        text: "4"
+                                        on_text: root.Generate(0)
+                        GridLayout:
+                                cols: 4
+                                orientation: 'horizontal'
+                                Label:
+                                        id: lbl_3
+                                        text: "4"
+                                TextInput:
+                                        id: inp_start3
+                                        text: "0"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_bpm3
+                                        text: "120"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_beat3
+                                        text: "4"
+                                        on_text: root.Generate(0)
+                        GridLayout:
+                                cols: 4
+                                orientation: 'horizontal'
+                                Label:
+                                        id: lbl_4
+                                        text: "5"
+                                TextInput:
+                                        id: inp_start4
+                                        text: "0"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_bpm4
+                                        text: "120"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_beat4
+                                        text: "4"
+                                        on_text: root.Generate(0)
+                        GridLayout:
+                                cols: 4
+                                orientation: 'horizontal'
+                                Label:
+                                        id: lbl_5
+                                        text: "6"
+                                TextInput:
+                                        id: inp_start5
+                                        text: "0"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_bpm5
+                                        text: "120"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_beat5
+                                        text: "4"
+                                        on_text: root.Generate(0)
+                        GridLayout:
+                                cols: 4
+                                orientation: 'horizontal'
+                                Label:
+                                        id: lbl_6
+                                        text: "7"
+                                TextInput:
+                                        id: inp_start6
+                                        text: "0"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_bpm6
+                                        text: "120"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_beat6
+                                        text: "4"
+                                        on_text: root.Generate(0)
+                        GridLayout:
+                                cols: 4
+                                orientation: 'horizontal'
+                                Label:
+                                        id: lbl_7
+                                        text: "8"
+                                TextInput:
+                                        id: inp_start7
+                                        text: "0"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_bpm7
+                                        text: "120"
+                                        on_text: root.Generate(0)
+                                TextInput:
+                                        id: inp_beat7
+                                        text: "4"
+                                        on_text: root.Generate(0)
                 GridLayout:
                         id: VideoButtons
-                        size_hint: .5, .05
-                        pos_hint:{"x":.5, "y":.52}
+                        size_hint: .33, .05
+                        pos_hint:{"x":.66, "y":.51}
                         cols: 8
                         orientation: 'horizontal'
                         Button:
@@ -84,8 +243,8 @@
                                 text: 'Vol Down'
                 Video:
                         id: VideoPlayer
-                        size_hint: .5, .38
-                        pos_hint:{"x":.5, "y":.57}
+                        size_hint: .34, .4
+                        pos_hint:{"x":.66, "y":.56}
                         state: 'pause'
 
 <LoadVideoDialog>:
