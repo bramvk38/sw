@@ -1,4 +1,5 @@
 import kivy
+
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -8,17 +9,13 @@ from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
-from kivy.factory import Factory
-from kivy.properties import ObjectProperty
-from kivy.uix.popup import Popup
 
-import os
+import tkinter as tk
+from tkinter import filedialog
 
 # Define global variables
 global video_file
-global video_path
-global file
-global last_path
+global project_file
 global selected
 global Lyrics0
 global Lyrics1
@@ -29,10 +26,8 @@ global Lyrics5
 global Lyrics6
 global Lyrics7
 global PartitionColor
-video_file = "x"
-video_path = "x"
-file = "x"
-last_path = "x"
+video_file = ""
+project_file = ""
 selected = 0
 Lyrics0 = ""
 Lyrics1 = ""
@@ -43,32 +38,10 @@ Lyrics5 = ""
 Lyrics6 = ""
 Lyrics7 = ""
 PartitionColor = [[1,0,0,1],[0,1,0,1],[.1,.1,1,1],[1,1,0,1],[0,1,1,1],[1,0,1,1],[.5,.5,1,1],[1,.5,.5,1]]
-
-class WelcomeDialog(FloatLayout):
-    save_project_as = ObjectProperty(None)
-    show_load = ObjectProperty(None)
-
-class LoadDialog(FloatLayout):
-    load = ObjectProperty(None)
-    cancel = ObjectProperty(None)
-
-class LoadVideoDialog(FloatLayout):
-    loadvideo = ObjectProperty(None)
-    cancel = ObjectProperty(None)
-
-class SaveDialog(FloatLayout):
-    save = ObjectProperty(None)
-    pre_save = ObjectProperty(None)
-    text_input = ObjectProperty(None)
-    cancel = ObjectProperty(None)
         
 class ContainerBox(BoxLayout):
-    loadfile = ObjectProperty(None)
-    savefile = ObjectProperty(None)
-    text_input = ObjectProperty(None)
+    
     def __init__(self, **kwargs):
-        global PartitionColor
-        global selected
         super(ContainerBox, self).__init__(**kwargs)
         self.ids.lbl_0.color = PartitionColor[0]
         self.ids.lbl_1.color = PartitionColor[1]
@@ -82,15 +55,13 @@ class ContainerBox(BoxLayout):
         self.ids.lbl_selected.text = "%s" % (selected+1)
 
     def try_export(self):
-        global file
-        if ".plague" in file: Generate(1)
+        if ".plague" in project_file: Generate(1)
         else: self.ids.lbl_msg.text = "Save project before export"
 
     def close_app(self):
         App.get_running_app().stop()
 
     def UpdatePartition(self):
-        global selected
         self.ids.lbl_selected.color = PartitionColor[selected]
         self.ids.lbl_selected.text = "%s" % (selected+1)
         if selected == 0: self.ids.Lyrics.text = Lyrics0
@@ -113,12 +84,6 @@ class ContainerBox(BoxLayout):
         if selected < 7:
             selected = selected + 1
             self.UpdatePartition()
-            
-    def TestFunc(self):
-        lines = self.ids.Lyrics.text.count('\n')
-        self.ids.Lyrics.size_hint_y = 1 + 10 * lines
-        self.ids.Lyrics2.pos_hint_y = 1 + lines * 10
-        print(self.ids.Lyrics.text.count('\n'))
 
     def PlayVideo(self):
         self.ids.VideoPlayer.state = 'play'
@@ -126,41 +91,40 @@ class ContainerBox(BoxLayout):
     def StopVideo(self):
         self.ids.VideoPlayer.state = 'pause'
 
-    def save_project_as(self):
-        content = SaveDialog(save=self.save, cancel=self.dismiss_popup)
-        self._popup = Popup(title="Save file", content=content, size_hint=(0.9, 0.9))
-        self._popup.open()
-
-    def dismiss_popup(self):
-        self._popup.dismiss()
-
-    def show_load(self):
-        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
-        self._popup = Popup(title="Load file", content=content, size_hint=(0.9, 0.9))
-        self._popup.open()
-
-    def try_video(self):
-        content = LoadVideoDialog(loadvideo=self.loadvideo, cancel=self.dismiss_popup)
-        self._popup = Popup(title="Load file", content=content, size_hint=(0.9, 0.9))
-        self._popup.open()
-
-    def loadvideo(self, path, filename):
-        global video_file
-        global video_path
-        if ".mp4" in filename:
-            video_file = filename
-            video_path = path
-            self.ids.VideoPlayer.unload()
-            self.ids.VideoPlayer.source = filename
+    def save(self, save_as):
+        global project_file
+        if save_as == 1 or ".plague" not in project_file:
+            root = tk.Tk()
+            root.withdraw()
+            file = filedialog.asksaveasfile(mode='w', defaultextension=".plague",  filetypes=[('Plague files','*.plague')])
+            if file is None:
+                self.ids.lbl_msg.text = "Not saved!"
+                return
+            project_file = file.name
+            file.write(self.save_data())
+            file.close()
         else:
-            self.ids.lbl_msg.text = "No valid video, select a .mp4 file"
-        self.dismiss_popup()
-
-    def load(self, path, filename):
-        global file
-        global last_path
+            file = open(project_file, "w")
+            if file is None:
+                self.ids.lbl_msg.text = "Not saved!"
+                return
+            file.write(self.save_data())
+            file.close()
+            
+    def loadvideo(self):
         global video_file
-        global video_path
+        root = tk.Tk()
+        root.withdraw()
+        file = filedialog.askopenfile(filetypes=[('Video files','*.mp4'),('Video files','*.avi')])
+        if file is None:
+            return
+        video_file = file.name
+        self.ids.VideoPlayer.unload()
+        self.ids.VideoPlayer.source = video_file
+
+    def load(self):
+        global project_file
+        global video_file
         global selected
         global Lyrics0
         global Lyrics1
@@ -170,139 +134,118 @@ class ContainerBox(BoxLayout):
         global Lyrics5
         global Lyrics6
         global Lyrics7
-        if ".plague" in filename[0]:
-            file = filename[0]
-            last_path = path
-            with open(os.path.join(path, filename[0])) as file: filelines = file.readlines()
-            video_path               = filelines[0].rstrip()
-            video_file               = filelines[1].rstrip()
-            self.ids.inp_start0.text = filelines[2].rstrip()
-            self.ids.inp_start1.text = filelines[3].rstrip()
-            self.ids.inp_start2.text = filelines[4].rstrip()
-            self.ids.inp_start3.text = filelines[5].rstrip()
-            self.ids.inp_start4.text = filelines[6].rstrip()
-            self.ids.inp_start5.text = filelines[7].rstrip()
-            self.ids.inp_start6.text = filelines[8].rstrip()
-            self.ids.inp_start7.text = filelines[9].rstrip()
-            self.ids.inp_bpm0.text   = filelines[10].rstrip()
-            self.ids.inp_bpm1.text   = filelines[11].rstrip()
-            self.ids.inp_bpm2.text   = filelines[12].rstrip()
-            self.ids.inp_bpm3.text   = filelines[13].rstrip()
-            self.ids.inp_bpm4.text   = filelines[14].rstrip()
-            self.ids.inp_bpm5.text   = filelines[15].rstrip()
-            self.ids.inp_bpm6.text   = filelines[16].rstrip()
-            self.ids.inp_bpm7.text   = filelines[17].rstrip()
-            self.ids.inp_beat0.text  = filelines[18].rstrip()
-            self.ids.inp_beat1.text  = filelines[19].rstrip()
-            self.ids.inp_beat2.text  = filelines[20].rstrip()
-            self.ids.inp_beat3.text  = filelines[21].rstrip()
-            self.ids.inp_beat4.text  = filelines[22].rstrip()
-            self.ids.inp_beat5.text  = filelines[23].rstrip()
-            self.ids.inp_beat6.text  = filelines[24].rstrip()
-            self.ids.inp_beat7.text  = filelines[25].rstrip()
-            i = 26
-            p0 = 26
-            while filelines[i] != 'LYRICSKEY\n': i = i + 1
-            p1 = i
-            i = i + 1
-            while filelines[i] != 'LYRICSKEY\n': i = i + 1
-            p2 = i
-            i = i + 1
-            while filelines[i] != 'LYRICSKEY\n': i = i + 1
-            p3 = i
-            i = i + 1
-            while filelines[i] != 'LYRICSKEY\n': i = i + 1
-            p4 = i
-            i = i + 1
-            while filelines[i] != 'LYRICSKEY\n': i = i + 1
-            p5 = i
-            i = i + 1
-            while filelines[i] != 'LYRICSKEY\n': i = i + 1
-            p6 = i
-            i = i + 1
-            while filelines[i] != 'LYRICSKEY\n': i = i + 1
-            p7 = i
-            self.loadvideo(video_path, video_file)
-            self.ids.Lyrics.text = ""
-            Lyrics0 = ''.join(filelines[p0:p1])
-            Lyrics1 = ''.join(filelines[p1+1:p2])
-            Lyrics2 = ''.join(filelines[p2+1:p3])
-            Lyrics3 = ''.join(filelines[p3+1:p4])
-            Lyrics4 = ''.join(filelines[p4+1:p5])
-            Lyrics5 = ''.join(filelines[p5+1:p6])
-            Lyrics6 = ''.join(filelines[p6+1:p7])
-            Lyrics7 = ''.join(filelines[p7+1:])
-            Lyrics0 = Lyrics0.rstrip()
-            Lyrics1 = Lyrics1.rstrip()
-            Lyrics2 = Lyrics2.rstrip()
-            Lyrics3 = Lyrics3.rstrip()
-            Lyrics4 = Lyrics4.rstrip()
-            Lyrics5 = Lyrics5.rstrip()
-            Lyrics6 = Lyrics6.rstrip()
-            Lyrics7 = Lyrics7.rstrip()
-            selected = 0
-            self.ids.Lyrics.text = Lyrics0
-        else:
-            self.ids.lbl_msg.text = "No valid project-file, select a .plague file"
-        self.dismiss_popup()
+        root = tk.Tk()
+        root.withdraw()
+        file = filedialog.askopenfile(filetypes=[('Plague files','*.plague')])
+        if file is None:
+            return
+        project_file = file.name
+        filelines = file.readlines()
+        file.close()
+        video_file               = filelines[1].rstrip()
+        self.ids.inp_start0.text = filelines[2].rstrip()
+        self.ids.inp_start1.text = filelines[3].rstrip()
+        self.ids.inp_start2.text = filelines[4].rstrip()
+        self.ids.inp_start3.text = filelines[5].rstrip()
+        self.ids.inp_start4.text = filelines[6].rstrip()
+        self.ids.inp_start5.text = filelines[7].rstrip()
+        self.ids.inp_start6.text = filelines[8].rstrip()
+        self.ids.inp_start7.text = filelines[9].rstrip()
+        self.ids.inp_bpm0.text   = filelines[10].rstrip()
+        self.ids.inp_bpm1.text   = filelines[11].rstrip()
+        self.ids.inp_bpm2.text   = filelines[12].rstrip()
+        self.ids.inp_bpm3.text   = filelines[13].rstrip()
+        self.ids.inp_bpm4.text   = filelines[14].rstrip()
+        self.ids.inp_bpm5.text   = filelines[15].rstrip()
+        self.ids.inp_bpm6.text   = filelines[16].rstrip()
+        self.ids.inp_bpm7.text   = filelines[17].rstrip()
+        self.ids.inp_beat0.text  = filelines[18].rstrip()
+        self.ids.inp_beat1.text  = filelines[19].rstrip()
+        self.ids.inp_beat2.text  = filelines[20].rstrip()
+        self.ids.inp_beat3.text  = filelines[21].rstrip()
+        self.ids.inp_beat4.text  = filelines[22].rstrip()
+        self.ids.inp_beat5.text  = filelines[23].rstrip()
+        self.ids.inp_beat6.text  = filelines[24].rstrip()
+        self.ids.inp_beat7.text  = filelines[25].rstrip()
+        i = 26
+        p0 = 26
+        while filelines[i] != 'LYRICSKEY\n': i = i + 1
+        p1 = i
+        i = i + 1
+        while filelines[i] != 'LYRICSKEY\n': i = i + 1
+        p2 = i
+        i = i + 1
+        while filelines[i] != 'LYRICSKEY\n': i = i + 1
+        p3 = i
+        i = i + 1
+        while filelines[i] != 'LYRICSKEY\n': i = i + 1
+        p4 = i
+        i = i + 1
+        while filelines[i] != 'LYRICSKEY\n': i = i + 1
+        p5 = i
+        i = i + 1
+        while filelines[i] != 'LYRICSKEY\n': i = i + 1
+        p6 = i
+        i = i + 1
+        while filelines[i] != 'LYRICSKEY\n': i = i + 1
+        p7 = i
+        self.ids.VideoPlayer.source = video_file
+        Lyrics0 = ''.join(filelines[p0:p1])
+        Lyrics1 = ''.join(filelines[p1+1:p2])
+        Lyrics2 = ''.join(filelines[p2+1:p3])
+        Lyrics3 = ''.join(filelines[p3+1:p4])
+        Lyrics4 = ''.join(filelines[p4+1:p5])
+        Lyrics5 = ''.join(filelines[p5+1:p6])
+        Lyrics6 = ''.join(filelines[p6+1:p7])
+        Lyrics7 = ''.join(filelines[p7+1:])
+        Lyrics0 = Lyrics0.rstrip()
+        Lyrics1 = Lyrics1.rstrip()
+        Lyrics2 = Lyrics2.rstrip()
+        Lyrics3 = Lyrics3.rstrip()
+        Lyrics4 = Lyrics4.rstrip()
+        Lyrics5 = Lyrics5.rstrip()
+        Lyrics6 = Lyrics6.rstrip()
+        Lyrics7 = Lyrics7.rstrip()
+        selected = 0
+        self.ids.Lyrics.text = Lyrics0
 
-    def try_save(self):
-        global file
-        global last_path
-        self.do_save(last_path, file)
-
-    def save(self, path, filename):
-        if ".plague" in filename:
-            self.do_save(path, filename)
-        else:
-            self.do_save(path, filename + ".plague")
-
-    def do_save(self, path, filename):
-        global file
-        global last_path
-        global video_file
-        global video_path
-        if ".plague" in filename:
-            file = filename
-            last_path = path
-            with open(os.path.join(path, filename), 'w') as stream:
-                stream.write(video_path + "\n")
-                stream.write(video_file + "\n")
-                stream.write(self.ids.inp_start0.text + "\n")
-                stream.write(self.ids.inp_start1.text + "\n")
-                stream.write(self.ids.inp_start2.text + "\n")
-                stream.write(self.ids.inp_start3.text + "\n")
-                stream.write(self.ids.inp_start4.text + "\n")
-                stream.write(self.ids.inp_start5.text + "\n")
-                stream.write(self.ids.inp_start6.text + "\n")
-                stream.write(self.ids.inp_start7.text + "\n")
-                stream.write(self.ids.inp_bpm0.text + "\n")
-                stream.write(self.ids.inp_bpm1.text + "\n")
-                stream.write(self.ids.inp_bpm2.text + "\n")
-                stream.write(self.ids.inp_bpm3.text + "\n")
-                stream.write(self.ids.inp_bpm4.text + "\n")
-                stream.write(self.ids.inp_bpm5.text + "\n")
-                stream.write(self.ids.inp_bpm6.text + "\n")
-                stream.write(self.ids.inp_bpm7.text + "\n")
-                stream.write(self.ids.inp_beat0.text + "\n")
-                stream.write(self.ids.inp_beat1.text + "\n")
-                stream.write(self.ids.inp_beat2.text + "\n")
-                stream.write(self.ids.inp_beat3.text + "\n")
-                stream.write(self.ids.inp_beat4.text + "\n")
-                stream.write(self.ids.inp_beat5.text + "\n")
-                stream.write(self.ids.inp_beat6.text + "\n")
-                stream.write(self.ids.inp_beat7.text + "\n")
-                stream.write(Lyrics0 + "\nLYRICSKEY\n")
-                stream.write(Lyrics1 + "\nLYRICSKEY\n")
-                stream.write(Lyrics2 + "\nLYRICSKEY\n")
-                stream.write(Lyrics3 + "\nLYRICSKEY\n")
-                stream.write(Lyrics4 + "\nLYRICSKEY\n")
-                stream.write(Lyrics5 + "\nLYRICSKEY\n")
-                stream.write(Lyrics6 + "\nLYRICSKEY\n")
-                stream.write(Lyrics7)
-            self.dismiss_popup()
-        else:
-            self.save_project_as()
+    def save_data(self):
+        s = ""
+        s+=(project_file + "\n")
+        s+=(video_file + "\n")
+        s+=(self.ids.inp_start0.text + "\n")
+        s+=(self.ids.inp_start1.text + "\n")
+        s+=(self.ids.inp_start2.text + "\n")
+        s+=(self.ids.inp_start3.text + "\n")
+        s+=(self.ids.inp_start4.text + "\n")
+        s+=(self.ids.inp_start5.text + "\n")
+        s+=(self.ids.inp_start6.text + "\n")
+        s+=(self.ids.inp_start7.text + "\n")
+        s+=(self.ids.inp_bpm0.text + "\n")
+        s+=(self.ids.inp_bpm1.text + "\n")
+        s+=(self.ids.inp_bpm2.text + "\n")
+        s+=(self.ids.inp_bpm3.text + "\n")
+        s+=(self.ids.inp_bpm4.text + "\n")
+        s+=(self.ids.inp_bpm5.text + "\n")
+        s+=(self.ids.inp_bpm6.text + "\n")
+        s+=(self.ids.inp_bpm7.text + "\n")
+        s+=(self.ids.inp_beat0.text + "\n")
+        s+=(self.ids.inp_beat1.text + "\n")
+        s+=(self.ids.inp_beat2.text + "\n")
+        s+=(self.ids.inp_beat3.text + "\n")
+        s+=(self.ids.inp_beat4.text + "\n")
+        s+=(self.ids.inp_beat5.text + "\n")
+        s+=(self.ids.inp_beat6.text + "\n")
+        s+=(self.ids.inp_beat7.text + "\n")
+        s+=(Lyrics0 + "\nLYRICSKEY\n")
+        s+=(Lyrics1 + "\nLYRICSKEY\n")
+        s+=(Lyrics2 + "\nLYRICSKEY\n")
+        s+=(Lyrics3 + "\nLYRICSKEY\n")
+        s+=(Lyrics4 + "\nLYRICSKEY\n")
+        s+=(Lyrics5 + "\nLYRICSKEY\n")
+        s+=(Lyrics6 + "\nLYRICSKEY\n")
+        s+=(Lyrics7)
+        return s
   
     def Generate(self, export):
 
@@ -456,11 +399,7 @@ class ContainerBox(BoxLayout):
   
 class PlagueLyrics_mainApp(App):
     def build(self):
-        return ContainerBox() 
-
-Factory.register('Root', cls=ContainerBox)
-Factory.register('LoadDialog', cls=LoadDialog)
-Factory.register('SaveDialog', cls=SaveDialog)
+        return ContainerBox()
 
 if __name__ == '__main__':
     PlagueLyrics_mainApp().run()
