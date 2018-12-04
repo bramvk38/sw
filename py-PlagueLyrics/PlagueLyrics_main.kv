@@ -1,0 +1,154 @@
+<ContainerBox>:
+        FloatLayout:
+                GridLayout:
+                        id: MenuBar
+                        size_hint: 1, 0.04
+                        pos_hint:{"x":0, "y":.96}
+                        cols: 8
+                        orientation: 'horizontal'
+                        Button:
+                                text: 'Open'
+                                on_release: root.show_load()
+                        Button:
+                                text: 'Save As'
+                                on_release: root.save_project_as()
+                        Button:
+                                text: 'Save'
+                                on_release: root.try_save()
+                        Button:
+                                text: 'Load Video'
+                                on_release: root.try_video()
+                        Button:
+                                text: 'Export .srt'
+                        Button:
+                                text: 'Hard-subs'
+                                on_release: root.TestFunc()
+                        Button:
+                                text: 'Exit'
+                GridLayout:
+                        id: Settings
+                        size_hint: .5, .05
+                        pos_hint:{"x":0, "y":.9}
+                        cols: 8
+                        orientation: 'horizontal'
+                        Label:
+                                text: "Start(s):"
+                        TextInput:
+                                id: inp_start0
+                                text: "0"
+                                on_text: root.Generate(0)
+                        Label:
+                                text: "BPM:"
+                        TextInput:
+                                id: inp_bpm0
+                                text: "120"
+                                on_text: root.Generate(0)
+                        Label:
+                                text: "Beats:"
+                        TextInput:
+                                id: inp_beat0
+                                text: "4"
+                                on_text: root.Generate(0)
+                BoxLayout:
+                        id: LyricsList
+                        size_hint: .5, .89
+                        pos_hint:{"x":0, "y":0}
+                        orientation: 'vertical'
+                        TextInput:
+                                id: Lyrics
+                                background_color: [.5,.5,.5,.5]
+                                on_text: root.Generate(0)
+                BoxLayout:
+                        id: LyricsOutList
+                        size_hint: .5, .51
+                        pos_hint:{"x":.5, "y":0}
+                        orientation: 'vertical'
+                        TextInput:
+                                id: LyricsOutput
+                                background_color: [.5,.5,.5,.5]                
+                GridLayout:
+                        id: VideoButtons
+                        size_hint: .5, .05
+                        pos_hint:{"x":.5, "y":.52}
+                        cols: 8
+                        orientation: 'horizontal'
+                        Button:
+                                text: 'Play'
+                                on_release: root.PlayVideo()
+                        Button:
+                                text: 'Stop'
+                                on_release: root.StopVideo()
+                        Button:
+                                text: 'Vol Up'
+                        Button:
+                                text: 'Vol Down'
+                Video:
+                        id: VideoPlayer
+                        size_hint: .5, .38
+                        pos_hint:{"x":.5, "y":.57}
+                        state: 'pause'
+
+<LoadVideoDialog>:
+        BoxLayout:
+                size: root.size
+                pos: root.pos
+                orientation: "vertical"
+                FileChooserListView:
+                        id: filechooser
+
+                BoxLayout:
+                        size_hint_y: None
+                        height: 30
+                        Button:
+                                text: "Cancel"
+                                on_release: root.cancel()
+
+                        Button:
+                                text: "Load"
+                                on_release: root.loadvideo(filechooser.path, filechooser.selection[0])
+
+<LoadDialog>:
+        BoxLayout:
+                size: root.size
+                pos: root.pos
+                orientation: "vertical"
+                FileChooserListView:
+                        id: filechooser
+
+                BoxLayout:
+                        size_hint_y: None
+                        height: 30
+                        Button:
+                                text: "Cancel"
+                                on_release: root.cancel()
+
+                        Button:
+                                text: "Load"
+                                on_release: root.load(filechooser.path, filechooser.selection)
+
+<SaveDialog>:
+        text_input: text_input
+        BoxLayout:
+                size: root.size
+                pos: root.pos
+                orientation: "vertical"
+                FileChooserListView:
+                        id: filechooser
+                        on_selection: text_input.text = self.selection and self.selection[0] or ''
+
+                TextInput:
+                        id: text_input
+                        size_hint_y: None
+                        height: 30
+                        multiline: False
+
+                BoxLayout:
+                        size_hint_y: None
+                        height: 30
+                        Button:
+                                text: "Cancel"
+                                on_release: root.cancel()
+
+                        Button:
+                                text: "Save"
+                                on_release: root.save(filechooser.path, text_input.text)
