@@ -29,6 +29,9 @@ global Lyrics5
 global Lyrics6
 global Lyrics7
 global PartitionColor
+global TimeStartList
+global TimeEndList
+global TimeLyricsList
 video_file = ""
 project_file = ""
 selected = 0
@@ -40,6 +43,9 @@ Lyrics4 = ""
 Lyrics5 = ""
 Lyrics6 = ""
 Lyrics7 = ""
+TimeStartList = list()
+TimeEndList = list()
+TimeLyricsList = list()
 PartitionColor = [[1,0,0,1],[0,1,0,1],[.1,.1,1,1],[1,1,0,1],[0,1,1,1],[1,0,1,1],[.5,.5,1,1],[1,.5,.5,1]]
         
 class ContainerBox(BoxLayout):
@@ -56,20 +62,27 @@ class ContainerBox(BoxLayout):
         self.ids.lbl_7.color = PartitionColor[7]
         self.ids.lbl_selected.color = PartitionColor[selected]
         self.ids.lbl_selected.text = "%s" % (selected+1)
-        Clock.schedule_interval(self.PlayTimer, 0.1)
+        Clock.schedule_interval(self.Refresh, 0.1)
         self.ids.lbl_msg.text = "Welcome to PlagueLyrics"
     
-    def PlayTimer(self, *args):
+    def Refresh(self, *args):
+        hit = 0
         if self.ids.VideoPlayer.state == 'play':
             self.ids.lbl_msg.text = "Video: %s sec" % (format(self.ids.VideoPlayer.position,'.3f'))
+        for i in range(len(TimeStartList)):
+            if self.ids.VideoPlayer.position >= TimeStartList[i] and self.ids.VideoPlayer.position <= TimeEndList[i]:
+                self.ids.lbl_subs.text = "%s" % (TimeLyricsList[i])
+                hit = 1
+        if hit == 0: self.ids.lbl_subs.text = ""
 
-    def try_export(self):
-        if ".plague" in project_file: self.Generate(1)
-        else: self.ids.lbl_msg.text = "Save project before export"
+    def SubSize(self, up):
+        if up == 1: self.ids.lbl_subs.font_size += 1
+        if up == 0: self.ids.lbl_subs.font_size -= 1
 
     def close_app(self):
         App.get_running_app().stop()
 
+    # Lyrics Partition Functions
     def UpdatePartition(self):
         self.ids.lbl_selected.color = PartitionColor[selected]
         self.ids.lbl_selected.text = "%s" % (selected+1)
@@ -81,13 +94,11 @@ class ContainerBox(BoxLayout):
         if selected == 5: self.ids.Lyrics.text = Lyrics5
         if selected == 6: self.ids.Lyrics.text = Lyrics6
         if selected == 7: self.ids.Lyrics.text = Lyrics7
-
     def PrevPartition(self):
         global selected
         if selected > 0:
             selected = selected - 1
             self.UpdatePartition()
-
     def NextPartition(self):
         global selected
         if selected < 7:
@@ -104,6 +115,7 @@ class ContainerBox(BoxLayout):
         if up == 0 and self.ids.VideoPlayer.volume > 0: self.ids.VideoPlayer.volume -= 0.05
     def ChangeVidPos(self):
         if video_file != "": self.ids.VideoPlayer.seek(self.ids.VideoSlider.value)
+
     # File Functions
     def save(self, save_as):
         global project_file
@@ -263,6 +275,10 @@ class ContainerBox(BoxLayout):
         s+=(Lyrics6 + "\nLYRICSKEY\n")
         s+=(Lyrics7)
         return s
+
+    def try_export(self):
+        if ".plague" in project_file: self.Generate(1)
+        else: self.ids.lbl_msg.text = "Save project before export"
   
     # Data processing
     def Generate(self, export):
@@ -277,6 +293,9 @@ class ContainerBox(BoxLayout):
         global Lyrics5
         global Lyrics6
         global Lyrics7
+        global TimeStartList
+        global TimeEndList
+        global TimeLyricsList
 
         # load text-input to variables
         if selected == 0: Lyrics0 = self.ids.Lyrics.text
@@ -392,44 +411,64 @@ class ContainerBox(BoxLayout):
         if steps7 > 0: Lyrics += (Lyrics7+"\n")
         LyricsLines = Lyrics.split('\n')
         TimeStamp = list()
+        TimeStartList.clear()
+        TimeEndList.clear()
+        TimeLyricsList.clear()
         for i in range(steps0):
-          TimeStart = to_timestamp(start0/1000 + (i * incr0))
-          TimeEnd = to_timestamp(start0/1000 + (i * incr0) + sub90_0)
-          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+          TimeStart = (start0/1000 + (i * incr0))
+          TimeEnd = (start0/1000 + (i * incr0) + sub90_0)
+          TimeStamp.append("%s --> %s" % (to_timestamp(TimeStart),to_timestamp(TimeEnd)))
+          TimeStartList.append(TimeStart)
+          TimeEndList.append(TimeEnd)
         for i in range(steps1):
-          TimeStart = to_timestamp(start1/1000 + (i * incr1))
-          TimeEnd = to_timestamp(start1/1000 + (i * incr1) + sub90_1)
-          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+          TimeStart = (start1/1000 + (i * incr1))
+          TimeEnd = (start1/1000 + (i * incr1) + sub90_1)
+          TimeStamp.append("%s --> %s" % (to_timestamp(TimeStart),to_timestamp(TimeEnd)))
+          TimeStartList.append(TimeStart)
+          TimeEndList.append(TimeEnd)
         for i in range(steps2):
-          TimeStart = to_timestamp(start2/1000 + (i * incr2))
-          TimeEnd = to_timestamp(start2/1000 + (i * incr2) + sub90_2)
-          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+          TimeStart = (start2/1000 + (i * incr2))
+          TimeEnd = (start2/1000 + (i * incr2) + sub90_2)
+          TimeStamp.append("%s --> %s" % (to_timestamp(TimeStart),to_timestamp(TimeEnd)))
+          TimeStartList.append(TimeStart)
+          TimeEndList.append(TimeEnd)
         for i in range(steps3):
-          TimeStart = to_timestamp(start3/1000 + (i * incr3))
-          TimeEnd = to_timestamp(start3/1000 + (i * incr3) + sub90_3)
-          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+          TimeStart = (start3/1000 + (i * incr3))
+          TimeEnd = (start3/1000 + (i * incr3) + sub90_3)
+          TimeStamp.append("%s --> %s" % (to_timestamp(TimeStart),to_timestamp(TimeEnd)))
+          TimeStartList.append(TimeStart)
+          TimeEndList.append(TimeEnd)
         for i in range(steps4):
-          TimeStart = to_timestamp(start4/1000 + (i * incr4))
-          TimeEnd = to_timestamp(start4/1000 + (i * incr4) + sub90_4)
-          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+          TimeStart = (start4/1000 + (i * incr4))
+          TimeEnd = (start4/1000 + (i * incr4) + sub90_4)
+          TimeStamp.append("%s --> %s" % (to_timestamp(TimeStart),to_timestamp(TimeEnd)))
+          TimeStartList.append(TimeStart)
+          TimeEndList.append(TimeEnd)
           LyricsLines.append(" ")
         for i in range(steps5):
-          TimeStart = to_timestamp(start5/1000 + (i * incr5))
-          TimeEnd = to_timestamp(start5/1000 + (i * incr5) + sub90_5)
-          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+          TimeStart = (start5/1000 + (i * incr5))
+          TimeEnd = (start5/1000 + (i * incr5) + sub90_5)
+          TimeStamp.append("%s --> %s" % (to_timestamp(TimeStart),to_timestamp(TimeEnd)))
+          TimeStartList.append(TimeStart)
+          TimeEndList.append(TimeEnd)
         for i in range(steps6):
-          TimeStart = to_timestamp(start6/1000 + (i * incr6))
-          TimeEnd = to_timestamp(start6/1000 + (i * incr6) + sub90_6)
-          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+          TimeStart = (start6/1000 + (i * incr6))
+          TimeEnd = (start6/1000 + (i * incr6) + sub90_6)
+          TimeStamp.append("%s --> %s" % (to_timestamp(TimeStart),to_timestamp(TimeEnd)))
+          TimeStartList.append(TimeStart)
+          TimeEndList.append(TimeEnd)
         for i in range(steps7):
-          TimeStart = to_timestamp(start7/1000 + (i * incr7))
-          TimeEnd = to_timestamp(start7/1000 + (i * incr7) + sub90_7)
-          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+          TimeStart = (start7/1000 + (i * incr7))
+          TimeEnd = (start7/1000 + (i * incr7) + sub90_7)
+          TimeStamp.append("%s --> %s" % (to_timestamp(TimeStart),to_timestamp(TimeEnd)))
+          TimeStartList.append(TimeStart)
+          TimeEndList.append(TimeEnd)
         
         # Print lists to preview
         LyricsOutList = list()
         for i in range(steps0+steps1+steps2+steps3+steps4+steps5+steps6+steps7):
           LyricsOutList.append("%s  %s\n" % (TimeStamp[i][3:16], LyricsLines[i]))
+          TimeLyricsList.append(LyricsLines[i])
 
         self.ids.LyricsOutput.text = ''.join(LyricsOutList)
           

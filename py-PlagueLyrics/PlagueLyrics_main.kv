@@ -44,8 +44,8 @@
                                 on_release: root.NextPartition()
                 BoxLayout:
                         id: LyricsList
-                        size_hint: .3, .9
-                        pos_hint:{"x":0, "y":0}
+                        size_hint: .3, .78
+                        pos_hint:{"x":0, "y":0.12}
                         orientation: 'vertical'
                         TextInput:
                                 id: Lyrics
@@ -55,14 +55,32 @@
                         id: lbl_msg
                         size_hint: .35, 0.05
                         pos_hint:{"x":.3, "y":.9}
+                        font_size: 18
                 BoxLayout:
                         id: LyricsOutList
-                        size_hint: .35, .9
-                        pos_hint:{"x":.3, "y":0}
+                        size_hint: .35, .78
+                        pos_hint:{"x":.3, "y":0.12}
                         orientation: 'vertical'
                         TextInput:
                                 id: LyricsOutput
                                 background_color: [.5,.5,.5,.5] 
+                Label:
+                        id: lbl_subs
+                        size_hint: .6, .12
+                        pos_hint:{"x":.06, "y":0}
+                        font_size: 30
+                GridLayout:
+                        id: Settings
+                        size_hint: .06, .12
+                        pos_hint:{"x":.0, "y":0}
+                        rows: 2
+                        orientation: 'vertical'
+                        Button:
+                                text: 'big'
+                                on_release: root.SubSize(1)
+                        Button:
+                                text: 'small'
+                                on_release: root.SubSize(0)
                 GridLayout:
                         id: Settings
                         size_hint: .33, .46
@@ -249,7 +267,7 @@
                         value: 0
                         size_hint: .34, .04
                         pos_hint:{"x":.66, "y":.52}
-                        on_touch_up: root.ChangeVidPos()               
+                        on_touch_move: root.ChangeVidPos()               
                 Video:
                         id: VideoPlayer
                         size_hint: .34, .4
