@@ -23,7 +23,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\repos\bramvk38\PlagueLyrics\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "dist\PlagueLyrics\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name: "{commonprograms}\PlagueLyrics"; Filename: "{app}\PlagueLyrics.exe"
