@@ -29,7 +29,7 @@
                 GridLayout:
                         id: SelectPartition
                         size_hint: .3, 0.05
-                        pos_hint:{"x":0, "y":.9}
+                        pos_hint:{"x":0, "y":.79}
                         cols: 8
                         orientation: 'horizontal'
                         Button:
@@ -42,45 +42,59 @@
                         Button:
                                 text: '>'
                                 on_release: root.NextPartition()
-                BoxLayout:
-                        id: LyricsList
-                        size_hint: .3, .78
-                        pos_hint:{"x":0, "y":0.12}
-                        orientation: 'vertical'
-                        TextInput:
-                                id: Lyrics
-                                background_color: [.5,.5,.5,.5]
-                                on_text: root.Generate(0)
                 Label:
                         id: lbl_msg
                         size_hint: .35, 0.05
-                        pos_hint:{"x":.3, "y":.9}
+                        pos_hint:{"x":.3, "y":.79}
                         font_size: 18
+                Label:
+                        id: lbl_subs
+                        size_hint: .66, .12
+                        pos_hint:{"x":0, "y":.84}
+                        font_size: 30
+                BoxLayout:
+                        id: LyricsList
+                        size_hint: .3, .79
+                        pos_hint:{"x":0, "y":0}
+                        orientation: 'vertical'
+                        TextInput:
+                                id: Lyrics
+                                background_color: [.6,.6,.6,.5]
+                                #foreground_color: [1,0,0,1]
+                                on_text: root.Generate(0)
                 BoxLayout:
                         id: LyricsOutList
-                        size_hint: .35, .78
-                        pos_hint:{"x":.3, "y":0.12}
+                        size_hint: .35, .79
+                        pos_hint:{"x":.3, "y":0}
                         orientation: 'vertical'
                         TextInput:
                                 id: LyricsOutput
-                                background_color: [.5,.5,.5,.5] 
-                Label:
-                        id: lbl_subs
-                        size_hint: .6, .12
-                        pos_hint:{"x":.06, "y":0}
-                        font_size: 30
+                                background_color: [.6,.6,.6,.5]
+                                #foreground_color: [0,1,0,1]
                 GridLayout:
-                        id: Settings
-                        size_hint: .06, .12
-                        pos_hint:{"x":.0, "y":0}
-                        rows: 2
-                        orientation: 'vertical'
+                        id: LyricsSize
+                        size_hint: .06, .03
+                        pos_hint:{"x":.24, "y":.75}
+                        cols: 2
+                        orientation: 'horizontal'
                         Button:
-                                text: 'big'
-                                on_release: root.SubSize(1)
+                                text: '-'
+                                on_release: root.LyricsSize(0)
                         Button:
-                                text: 'small'
+                                text: '+'
+                                on_release: root.LyricsSize(1)
+                GridLayout:
+                        id: SubSize
+                        size_hint: .06, .03
+                        pos_hint:{"x":.6, "y":.92}
+                        cols: 2
+                        orientation: 'horizontal'
+                        Button:
+                                text: '-'
                                 on_release: root.SubSize(0)
+                        Button:
+                                text: '+'
+                                on_release: root.SubSize(1)
                 GridLayout:
                         id: Settings
                         size_hint: .33, .46

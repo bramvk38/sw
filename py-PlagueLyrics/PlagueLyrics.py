@@ -49,7 +49,8 @@ TimeLyricsList = list()
 PartitionColor = [[1,0,0,1],[0,1,0,1],[.1,.1,1,1],[1,1,0,1],[0,1,1,1],[1,0,1,1],[.5,.5,1,1],[1,.5,.5,1]]
         
 class ContainerBox(BoxLayout):
-    
+
+    # Init
     def __init__(self, **kwargs):
         super(ContainerBox, self).__init__(**kwargs)
         self.ids.lbl_0.color = PartitionColor[0]
@@ -64,7 +65,10 @@ class ContainerBox(BoxLayout):
         self.ids.lbl_selected.text = "%s" % (selected+1)
         Clock.schedule_interval(self.Refresh, 0.1)
         self.ids.lbl_msg.text = "Welcome to PlagueLyrics"
+    def close_app(self):
+        App.get_running_app().stop()
     
+    # Update text
     def Refresh(self, *args):
         hit = 0
         if self.ids.VideoPlayer.state == 'play':
@@ -74,13 +78,14 @@ class ContainerBox(BoxLayout):
                 self.ids.lbl_subs.text = "%s" % (TimeLyricsList[i])
                 hit = 1
         if hit == 0: self.ids.lbl_subs.text = ""
-
     def SubSize(self, up):
         if up == 1: self.ids.lbl_subs.font_size += 1
         if up == 0: self.ids.lbl_subs.font_size -= 1
-
-    def close_app(self):
-        App.get_running_app().stop()
+    def LyricsSize(self, up):
+        if up == 1: self.ids.Lyrics.font_size += 1
+        if up == 0: self.ids.Lyrics.font_size -= 1
+        if up == 1: self.ids.LyricsOutput.font_size += 1
+        if up == 0: self.ids.LyricsOutput.font_size -= 1
 
     # Lyrics Partition Functions
     def UpdatePartition(self):
