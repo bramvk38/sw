@@ -1,5 +1,4 @@
 import kivy
-
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -9,6 +8,10 @@ from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.slider import Slider
+from kivy.clock import Clock
+
+import ntpath
 
 import tkinter as tk
 from tkinter import filedialog
@@ -53,9 +56,15 @@ class ContainerBox(BoxLayout):
         self.ids.lbl_7.color = PartitionColor[7]
         self.ids.lbl_selected.color = PartitionColor[selected]
         self.ids.lbl_selected.text = "%s" % (selected+1)
+        Clock.schedule_interval(self.PlayTimer, 0.1)
+        self.ids.lbl_msg.text = "Welcome to PlagueLyrics"
+    
+    def PlayTimer(self, *args):
+        if self.ids.VideoPlayer.state == 'play':
+            self.ids.lbl_msg.text = "Video: %s sec" % (format(self.ids.VideoPlayer.position,'.3f'))
 
     def try_export(self):
-        if ".plague" in project_file: Generate(1)
+        if ".plague" in project_file: self.Generate(1)
         else: self.ids.lbl_msg.text = "Save project before export"
 
     def close_app(self):
@@ -85,12 +94,17 @@ class ContainerBox(BoxLayout):
             selected = selected + 1
             self.UpdatePartition()
 
+    # Video Functions
     def PlayVideo(self):
         self.ids.VideoPlayer.state = 'play'
-
     def StopVideo(self):
         self.ids.VideoPlayer.state = 'pause'
-
+    def VideoVolume(self, up):
+        if up == 1 and self.ids.VideoPlayer.volume < 1: self.ids.VideoPlayer.volume += 0.05
+        if up == 0 and self.ids.VideoPlayer.volume > 0: self.ids.VideoPlayer.volume -= 0.05
+    def ChangeVidPos(self):
+        if video_file != "": self.ids.VideoPlayer.seek(self.ids.VideoSlider.value)
+    # File Functions
     def save(self, save_as):
         global project_file
         if save_as == 1 or ".plague" not in project_file:
@@ -103,6 +117,7 @@ class ContainerBox(BoxLayout):
             project_file = file.name
             file.write(self.save_data())
             file.close()
+            self.ids.lbl_msg.text = "Project saved!"
         else:
             file = open(project_file, "w")
             if file is None:
@@ -110,6 +125,7 @@ class ContainerBox(BoxLayout):
                 return
             file.write(self.save_data())
             file.close()
+            self.ids.lbl_msg.text = "Project saved!"
             
     def loadvideo(self):
         global video_file
@@ -121,6 +137,7 @@ class ContainerBox(BoxLayout):
         video_file = file.name
         self.ids.VideoPlayer.unload()
         self.ids.VideoPlayer.source = video_file
+        self.ids.lbl_msg.text = "Video file loaded"
 
     def load(self):
         global project_file
@@ -247,6 +264,7 @@ class ContainerBox(BoxLayout):
         s+=(Lyrics7)
         return s
   
+    # Data processing
     def Generate(self, export):
 
         # use global variables
@@ -260,9 +278,6 @@ class ContainerBox(BoxLayout):
         global Lyrics6
         global Lyrics7
 
-        # clear messages
-        self.ids.lbl_msg.text = ""
-        
         # load text-input to variables
         if selected == 0: Lyrics0 = self.ids.Lyrics.text
         if selected == 1: Lyrics1 = self.ids.Lyrics.text
@@ -366,36 +381,69 @@ class ContainerBox(BoxLayout):
         sub90_7 = incr7 * 0.9
         
         # Make lists
-        Lyrics = Lyrics0+"\n"+Lyrics1+"\n"+Lyrics2+"\n"+Lyrics3+"\n"+Lyrics4+"\n"+Lyrics5+"\n"+Lyrics6+"\n"+Lyrics7
+        Lyrics = ""
+        if steps0 > 0: Lyrics += (Lyrics0+"\n")
+        if steps1 > 0: Lyrics += (Lyrics1+"\n")
+        if steps2 > 0: Lyrics += (Lyrics2+"\n")
+        if steps3 > 0: Lyrics += (Lyrics3+"\n")
+        if steps4 > 0: Lyrics += (Lyrics4+"\n")
+        if steps5 > 0: Lyrics += (Lyrics5+"\n")
+        if steps6 > 0: Lyrics += (Lyrics6+"\n")
+        if steps7 > 0: Lyrics += (Lyrics7+"\n")
         LyricsLines = Lyrics.split('\n')
         TimeStamp = list()
         for i in range(steps0):
           TimeStart = to_timestamp(start0/1000 + (i * incr0))
           TimeEnd = to_timestamp(start0/1000 + (i * incr0) + sub90_0)
           TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
-          LyricsLines.append(" ")
         for i in range(steps1):
           TimeStart = to_timestamp(start1/1000 + (i * incr1))
           TimeEnd = to_timestamp(start1/1000 + (i * incr1) + sub90_1)
           TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+        for i in range(steps2):
+          TimeStart = to_timestamp(start2/1000 + (i * incr2))
+          TimeEnd = to_timestamp(start2/1000 + (i * incr2) + sub90_2)
+          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+        for i in range(steps3):
+          TimeStart = to_timestamp(start3/1000 + (i * incr3))
+          TimeEnd = to_timestamp(start3/1000 + (i * incr3) + sub90_3)
+          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+        for i in range(steps4):
+          TimeStart = to_timestamp(start4/1000 + (i * incr4))
+          TimeEnd = to_timestamp(start4/1000 + (i * incr4) + sub90_4)
+          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
           LyricsLines.append(" ")
+        for i in range(steps5):
+          TimeStart = to_timestamp(start5/1000 + (i * incr5))
+          TimeEnd = to_timestamp(start5/1000 + (i * incr5) + sub90_5)
+          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+        for i in range(steps6):
+          TimeStart = to_timestamp(start6/1000 + (i * incr6))
+          TimeEnd = to_timestamp(start6/1000 + (i * incr6) + sub90_6)
+          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
+        for i in range(steps7):
+          TimeStart = to_timestamp(start7/1000 + (i * incr7))
+          TimeEnd = to_timestamp(start7/1000 + (i * incr7) + sub90_7)
+          TimeStamp.append("%s --> %s" % (TimeStart,  TimeEnd))
         
         # Print lists to preview
         LyricsOutList = list()
-        for i in range(steps0+steps1):
+        for i in range(steps0+steps1+steps2+steps3+steps4+steps5+steps6+steps7):
           LyricsOutList.append("%s  %s\n" % (TimeStamp[i][3:16], LyricsLines[i]))
 
         self.ids.LyricsOutput.text = ''.join(LyricsOutList)
           
+        # Export to .srt
         if export == 1:
-          name = ui.FileName.toPlainText()
-          file = open('%s.srt' % (name), "w")
-          for i in range(steps0+steps1+steps2+steps3):
+          srtfile = project_file.replace(".plague", ".srt")
+          file = open(srtfile, "w")
+          for i in range(steps0+steps1+steps2+steps3+steps4+steps5+steps6+steps7):
             file.write("%s\n" % (i+1))
             file.write("%s\n" % (TimeStamp[i]))
             file.write("%s\n" % (LyricsLines[i]))
             file.write("\n")
-          file.close() 
+          file.close()
+          self.ids.lbl_msg.text = ".srt exported!"
   
 class PlagueLyrics_mainApp(App):
     def build(self):
