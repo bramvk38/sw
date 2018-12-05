@@ -141,15 +141,22 @@ class ContainerBox(BoxLayout):
             
     def loadvideo(self):
         global video_file
+        if ".plague" not in project_file:
+            self.ids.lbl_msg.text = "Save project first!"
+            return
         root = tk.Tk()
         root.withdraw()
         file = filedialog.askopenfile(filetypes=[('Video files','*.mp4'),('Video files','*.avi')])
         if file is None:
+            self.ids.lbl_msg.text = "No Video file selected"
             return
-        video_file = file.name
+        if ntpath.dirname(file.name) != ntpath.dirname(project_file):
+            self.ids.lbl_msg.text = "Put video file in project-folder!"
+            return
+        video_file = ntpath.basename(file.name)
         self.ids.VideoPlayer.unload()
-        self.ids.VideoPlayer.source = video_file
-        self.ids.lbl_msg.text = "Video file loaded"
+        self.ids.VideoPlayer.source = ntpath.dirname(project_file)+"/"+video_file
+        self.ids.lbl_msg.text = "%s loaded" % (video_file)
 
     def load(self):
         global project_file
@@ -218,7 +225,7 @@ class ContainerBox(BoxLayout):
         i = i + 1
         while filelines[i] != 'LYRICSKEY\n': i = i + 1
         p7 = i
-        self.ids.VideoPlayer.source = video_file
+        self.ids.VideoPlayer.source = ntpath.dirname(project_file)+"/"+video_file
         Lyrics0 = ''.join(filelines[p0:p1])
         Lyrics1 = ''.join(filelines[p1+1:p2])
         Lyrics2 = ''.join(filelines[p2+1:p3])
@@ -237,10 +244,11 @@ class ContainerBox(BoxLayout):
         Lyrics7 = Lyrics7.rstrip()
         selected = 0
         self.ids.Lyrics.text = Lyrics0
+        self.ids.lbl_msg.text = "%s loaded" % (ntpath.basename(project_file))
 
     def save_data(self):
         s = ""
-        s+=(project_file + "\n")
+        s+=(ntpath.basename(project_file) + "\n")
         s+=(video_file + "\n")
         s+=(self.ids.inp_start0.text + "\n")
         s+=(self.ids.inp_start1.text + "\n")
@@ -482,7 +490,7 @@ class ContainerBox(BoxLayout):
             file.write("%s\n" % (LyricsLines[i]))
             file.write("\n")
           file.close()
-          self.ids.lbl_msg.text = ".srt exported!"
+          self.ids.lbl_msg.text = "%s exported!" % (ntpath.basename(srtfile))
   
 class PlagueLyrics_mainApp(App):
     def build(self):
