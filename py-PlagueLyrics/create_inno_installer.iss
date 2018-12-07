@@ -7,8 +7,8 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{9AEB7770-894D-4C60-90D4-0A98B8708FF3}
 AppName=PlagueLyrics
-AppVersion=2.1
-;AppVerName=PlagueLyrics 2.1
+AppVersion=2.4
+;AppVerName=PlagueLyrics 2.4
 AppPublisher=Platypus Engineering
 DefaultDirName={pf}\PlagueLyrics
 DisableProgramGroupPage=yes
