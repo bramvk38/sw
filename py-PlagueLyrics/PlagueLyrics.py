@@ -6,11 +6,14 @@ from kivy.uix.textinput import TextInput
 from kivy.core.audio import SoundLoader
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.progressbar import ProgressBar
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.slider import Slider
 from kivy.clock import Clock
+from shutil import copyfile
 
+import os
 import ntpath
 
 import tkinter as tk
@@ -34,7 +37,7 @@ global TimeEndList
 global TimeLyricsList
 global Audio
 global SliderVal
-audio_file = 'unknown.mp3'
+audio_file = ""
 project_file = ""
 selected = 0
 Lyrics0 = ""
@@ -49,7 +52,7 @@ TimeStartList = list()
 TimeEndList = list()
 TimeLyricsList = list()
 PartitionColor = [[1,0,0,1],[0,1,0,1],[.1,.1,1,1],[1,1,0,1],[0,1,1,1],[1,0,1,1],[.5,.5,1,1],[1,.5,.5,1]]
-Audio = SoundLoader.load(audio_file)
+Audio = ''
 SliderVal = float(0)
         
 class ContainerBox(BoxLayout):
@@ -75,12 +78,14 @@ class ContainerBox(BoxLayout):
     # Update text
     def Refresh(self, *args):
         hit = 0
-        if Audio.state == 'play':
-            self.ids.lbl_msg.text = "Audio: %s sec" % (format(Audio.get_pos(),'.3f'))
-        for i in range(len(TimeStartList)):
-            if Audio.get_pos() >= TimeStartList[i] and Audio.get_pos() <= TimeEndList[i]:
-                self.ids.lbl_subs.text = "%s" % (TimeLyricsList[i])
-                hit = 1
+        if audio_file != "":
+            if Audio.state == 'play':
+                self.ids.lbl_timer.text = "%s" % (format(Audio.get_pos(),'.3f'))
+                self.ids.AudioBar.value = (Audio.get_pos() / (Audio.length + 0.00001)) * 1000
+            for i in range(len(TimeStartList)):
+                if Audio.get_pos() >= TimeStartList[i] and Audio.get_pos() <= TimeEndList[i]:
+                    self.ids.lbl_subs.text = "%s" % (TimeLyricsList[i])
+                    hit = 1
         if hit == 0: self.ids.lbl_subs.text = ""
     def SubSize(self, up):
         if up == 1: self.ids.lbl_subs.font_size += 1
@@ -117,15 +122,17 @@ class ContainerBox(BoxLayout):
     # audio Functions
     def PlayAudio(self):
         global Audio
-        Audio = SoundLoader.load(ntpath.dirname(project_file)+"/"+audio_file)
-        Audio.play()
+        if audio_file != "":
+            Audio = SoundLoader.load(ntpath.dirname(project_file)+"/"+audio_file)
+            Audio.play()
     def StopAudio(self):
         global Audio
-        Audio.stop()
+        if audio_file != "": Audio.stop()
     def AudioVolume(self, up):
         global Audio
-        if up == 1 and Audio.volume < 1: Audio.volume += 0.05
-        if up == 0 and Audio.volume > 0: Audio.volume -= 0.05
+        if audio_file != "":
+            if up == 1 and Audio.volume < 1: Audio.volume += 0.05
+            if up == 0 and Audio.volume > 0: Audio.volume -= 0.05
     def ChangeAudioPos(self):
         global Audio
         global SliderVal
@@ -158,6 +165,7 @@ class ContainerBox(BoxLayout):
             
     def loadAudio(self):
         global audio_file
+        global Audio
         if ".plague" not in project_file:
             self.ids.lbl_msg.text = "Save project first!"
             return
@@ -171,8 +179,7 @@ class ContainerBox(BoxLayout):
             self.ids.lbl_msg.text = "Put audio file in project-folder!"
             return
         audio_file = ntpath.basename(file.name)
-        Audio.unload()
-        Audio.source = ntpath.dirname(project_file)+"/"+audio_file
+        Audio = SoundLoader.load(ntpath.dirname(project_file)+"/"+audio_file)
         self.ids.lbl_msg.text = "%s loaded" % (audio_file)
 
     def load(self):
@@ -500,15 +507,20 @@ class ContainerBox(BoxLayout):
           
         # Export to .srt
         if export == 1:
-          srtfile = project_file.replace(".plague", ".srt")
-          file = open(srtfile, "w")
-          for i in range(steps0+steps1+steps2+steps3+steps4+steps5+steps6+steps7):
-            file.write("%s\n" % (i+1))
-            file.write("%s\n" % (TimeStamp[i]))
-            file.write("%s\n" % (LyricsLines[i]))
-            file.write("\n")
-          file.close()
-          self.ids.lbl_msg.text = "%s exported!" % (ntpath.basename(srtfile))
+            file = open("subs.srt", "w")
+            for i in range(steps0+steps1+steps2+steps3+steps4+steps5+steps6+steps7):
+                file.write("%s\n" % (i+1))
+                file.write("%s\n" % (TimeStamp[i]))
+                file.write("%s\n" % (LyricsLines[i]))
+                file.write("\n")
+            file.close()
+            copyfile(ntpath.dirname(project_file)+"/"+audio_file, "in.mp3")
+            os.system("start /wait burn_subs.bat")
+            copyfile("out.mp4",ntpath.dirname(project_file)+"/"+audio_file.replace(".mp3", ".mp4"))
+            os.remove("in.mp3")
+            os.remove("out.mp4")
+            os.remove("subs.srt")
+            self.ids.lbl_msg.text = "%s exported!" % audio_file.replace(".mp3", ".mp4")
   
 class PlagueLyrics_mainApp(App):
     def build(self):

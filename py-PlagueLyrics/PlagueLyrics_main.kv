@@ -4,7 +4,7 @@
                         id: MenuBar
                         size_hint: 1, 0.04
                         pos_hint:{"x":0, "y":.96}
-                        cols: 8
+                        cols: 6
                         orientation: 'horizontal'
                         Button:
                                 text: 'Open'
@@ -19,16 +19,24 @@
                                 text: 'Load Audio'
                                 on_release: root.loadAudio()
                         Button:
-                                text: 'Export .srt'
+                                text: 'Export .mp4'
                                 on_release: root.try_export()
-                        Button:
-                                text: 'Hard-subs'
                         Button:
                                 text: 'Exit'
                                 on_release: root.close_app()
+                Label:
+                        id: lbl_subs
+                        size_hint: 1, .12
+                        pos_hint:{"x":0, "y":.84}
+                        font_size: 30
+                Label:
+                        id: lbl_msg
+                        size_hint: .35, 0.04
+                        pos_hint:{"x":.3, "y":.79}
+                        font_size: 14
                 GridLayout:
                         id: SelectPartition
-                        size_hint: .3, 0.05
+                        size_hint: .3, 0.04
                         pos_hint:{"x":0, "y":.79}
                         cols: 8
                         orientation: 'horizontal'
@@ -42,16 +50,6 @@
                         Button:
                                 text: '>'
                                 on_release: root.NextPartition()
-                Label:
-                        id: lbl_msg
-                        size_hint: .35, 0.05
-                        pos_hint:{"x":.3, "y":.79}
-                        font_size: 18
-                Label:
-                        id: lbl_subs
-                        size_hint: .66, .12
-                        pos_hint:{"x":0, "y":.84}
-                        font_size: 30
                 BoxLayout:
                         id: LyricsList
                         size_hint: .3, .79
@@ -86,7 +84,7 @@
                 GridLayout:
                         id: SubSize
                         size_hint: .06, .03
-                        pos_hint:{"x":.6, "y":.92}
+                        pos_hint:{"x":.92, "y":.92}
                         cols: 2
                         orientation: 'horizontal'
                         Button:
@@ -95,6 +93,45 @@
                         Button:
                                 text: '+'
                                 on_release: root.SubSize(1)
+                GridLayout:
+                        id: AudioButtons
+                        size_hint: .33, .05
+                        pos_hint:{"x":.66, "y":.47}
+                        cols: 8
+                        orientation: 'horizontal'
+                        Button:
+                                text: 'Play'
+                                on_release: root.PlayAudio()
+                        Button:
+                                text: 'Stop'
+                                on_release: root.StopAudio()
+                        Button:
+                                text: 'Vol Up'
+                                on_release: root.AudioVolume(1)
+                        Button:
+                                text: 'Vol Down'
+                                on_release: root.AudioVolume(0)
+                Slider:
+                        id: AudioSlider
+                        min: 0
+                        max: 1
+                        value: 0
+                        size_hint: .34, .05
+                        pos_hint:{"x":.66, "y":.55}
+                        on_touch_up: root.ChangeAudioPos()
+                Label:
+                        id: lbl_timer
+                        size_hint: .34, 0.15
+                        pos_hint:{"x":.66, "y":.65}
+                        font_size: 30
+                ProgressBar:
+                        id: AudioBar
+                        size_hint: .3, .05
+                        pos_hint:{"x":.68, "y":.6}
+                        max: 1000
+                ProgressBar:
+                        size_hint: 1, .005
+                        pos_hint:{"x":0, "y":.835}
                 GridLayout:
                         id: Settings
                         size_hint: .33, .46
@@ -256,29 +293,3 @@
                                         id: inp_beat7
                                         text: "4"
                                         on_text: root.Generate(0)
-                GridLayout:
-                        id: AudioButtons
-                        size_hint: .33, .05
-                        pos_hint:{"x":.66, "y":.47}
-                        cols: 8
-                        orientation: 'horizontal'
-                        Button:
-                                text: 'Play'
-                                on_release: root.PlayAudio()
-                        Button:
-                                text: 'Stop'
-                                on_release: root.StopAudio()
-                        Button:
-                                text: 'Vol Up'
-                                on_release: root.AudioVolume(1)
-                        Button:
-                                text: 'Vol Down'
-                                on_release: root.AudioVolume(0)
-                Slider:
-                        id: AudioSlider
-                        min: 0
-                        max: 1
-                        value: 0
-                        size_hint: .34, .04
-                        pos_hint:{"x":.66, "y":.52}
-                        on_touch_up: root.ChangeAudioPos()
