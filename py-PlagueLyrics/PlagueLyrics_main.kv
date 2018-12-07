@@ -16,8 +16,8 @@
                                 text: 'Save'
                                 on_release: root.save(0)
                         Button:
-                                text: 'Load Video'
-                                on_release: root.loadvideo()
+                                text: 'Load Audio'
+                                on_release: root.loadAudio()
                         Button:
                                 text: 'Export .srt'
                                 on_release: root.try_export()
@@ -257,33 +257,28 @@
                                         text: "4"
                                         on_text: root.Generate(0)
                 GridLayout:
-                        id: VideoButtons
+                        id: AudioButtons
                         size_hint: .33, .05
                         pos_hint:{"x":.66, "y":.47}
                         cols: 8
                         orientation: 'horizontal'
                         Button:
                                 text: 'Play'
-                                on_release: root.PlayVideo()
+                                on_release: root.PlayAudio()
                         Button:
                                 text: 'Stop'
-                                on_release: root.StopVideo()
+                                on_release: root.StopAudio()
                         Button:
                                 text: 'Vol Up'
-                                on_release: root.VideoVolume(1)
+                                on_release: root.AudioVolume(1)
                         Button:
                                 text: 'Vol Down'
-                                on_release: root.VideoVolume(0)
+                                on_release: root.AudioVolume(0)
                 Slider:
-                        id: VideoSlider
+                        id: AudioSlider
                         min: 0
                         max: 1
                         value: 0
                         size_hint: .34, .04
                         pos_hint:{"x":.66, "y":.52}
-                        on_touch_move: root.ChangeVidPos()               
-                Video:
-                        id: VideoPlayer
-                        size_hint: .34, .4
-                        pos_hint:{"x":.66, "y":.56}
-                        state: 'pause'
+                        on_touch_up: root.ChangeAudioPos()

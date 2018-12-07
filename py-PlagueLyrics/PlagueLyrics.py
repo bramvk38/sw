@@ -3,7 +3,7 @@ from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
-from kivy.uix.video import Video
+from kivy.core.audio import SoundLoader
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.boxlayout import BoxLayout
@@ -17,7 +17,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 # Define global variables
-global video_file
+global audio_file
 global project_file
 global selected
 global Lyrics0
@@ -32,7 +32,9 @@ global PartitionColor
 global TimeStartList
 global TimeEndList
 global TimeLyricsList
-video_file = ""
+global Audio
+global SliderVal
+audio_file = 'unknown.mp3'
 project_file = ""
 selected = 0
 Lyrics0 = ""
@@ -47,6 +49,8 @@ TimeStartList = list()
 TimeEndList = list()
 TimeLyricsList = list()
 PartitionColor = [[1,0,0,1],[0,1,0,1],[.1,.1,1,1],[1,1,0,1],[0,1,1,1],[1,0,1,1],[.5,.5,1,1],[1,.5,.5,1]]
+Audio = SoundLoader.load(audio_file)
+SliderVal = float(0)
         
 class ContainerBox(BoxLayout):
 
@@ -71,10 +75,10 @@ class ContainerBox(BoxLayout):
     # Update text
     def Refresh(self, *args):
         hit = 0
-        if self.ids.VideoPlayer.state == 'play':
-            self.ids.lbl_msg.text = "Video: %s sec" % (format(self.ids.VideoPlayer.position,'.3f'))
+        if Audio.state == 'play':
+            self.ids.lbl_msg.text = "Audio: %s sec" % (format(Audio.get_pos(),'.3f'))
         for i in range(len(TimeStartList)):
-            if self.ids.VideoPlayer.position >= TimeStartList[i] and self.ids.VideoPlayer.position <= TimeEndList[i]:
+            if Audio.get_pos() >= TimeStartList[i] and Audio.get_pos() <= TimeEndList[i]:
                 self.ids.lbl_subs.text = "%s" % (TimeLyricsList[i])
                 hit = 1
         if hit == 0: self.ids.lbl_subs.text = ""
@@ -110,16 +114,24 @@ class ContainerBox(BoxLayout):
             selected = selected + 1
             self.UpdatePartition()
 
-    # Video Functions
-    def PlayVideo(self):
-        self.ids.VideoPlayer.state = 'play'
-    def StopVideo(self):
-        self.ids.VideoPlayer.state = 'pause'
-    def VideoVolume(self, up):
-        if up == 1 and self.ids.VideoPlayer.volume < 1: self.ids.VideoPlayer.volume += 0.05
-        if up == 0 and self.ids.VideoPlayer.volume > 0: self.ids.VideoPlayer.volume -= 0.05
-    def ChangeVidPos(self):
-        if video_file != "": self.ids.VideoPlayer.seek(self.ids.VideoSlider.value)
+    # audio Functions
+    def PlayAudio(self):
+        global Audio
+        Audio = SoundLoader.load(ntpath.dirname(project_file)+"/"+audio_file)
+        Audio.play()
+    def StopAudio(self):
+        global Audio
+        Audio.stop()
+    def AudioVolume(self, up):
+        global Audio
+        if up == 1 and Audio.volume < 1: Audio.volume += 0.05
+        if up == 0 and Audio.volume > 0: Audio.volume -= 0.05
+    def ChangeAudioPos(self):
+        global Audio
+        global SliderVal
+        if SliderVal != self.ids.AudioSlider.value and audio_file != "":
+            SliderVal = self.ids.AudioSlider.value
+            Audio.seek(SliderVal * Audio.length)
 
     # File Functions
     def save(self, save_as):
@@ -144,28 +156,28 @@ class ContainerBox(BoxLayout):
             file.close()
             self.ids.lbl_msg.text = "Project saved!"
             
-    def loadvideo(self):
-        global video_file
+    def loadAudio(self):
+        global audio_file
         if ".plague" not in project_file:
             self.ids.lbl_msg.text = "Save project first!"
             return
         root = tk.Tk()
         root.withdraw()
-        file = filedialog.askopenfile(filetypes=[('Video files','*.mp4'),('Video files','*.avi')])
+        file = filedialog.askopenfile(filetypes=[('Audio files','*.mp3'),('Audio files','*.wav')])
         if file is None:
-            self.ids.lbl_msg.text = "No Video file selected"
+            self.ids.lbl_msg.text = "No audio file selected"
             return
         if ntpath.dirname(file.name) != ntpath.dirname(project_file):
-            self.ids.lbl_msg.text = "Put video file in project-folder!"
+            self.ids.lbl_msg.text = "Put audio file in project-folder!"
             return
-        video_file = ntpath.basename(file.name)
-        self.ids.VideoPlayer.unload()
-        self.ids.VideoPlayer.source = ntpath.dirname(project_file)+"/"+video_file
-        self.ids.lbl_msg.text = "%s loaded" % (video_file)
+        audio_file = ntpath.basename(file.name)
+        Audio.unload()
+        Audio.source = ntpath.dirname(project_file)+"/"+audio_file
+        self.ids.lbl_msg.text = "%s loaded" % (audio_file)
 
     def load(self):
         global project_file
-        global video_file
+        global audio_file
         global selected
         global Lyrics0
         global Lyrics1
@@ -175,6 +187,7 @@ class ContainerBox(BoxLayout):
         global Lyrics5
         global Lyrics6
         global Lyrics7
+        global Audio
         root = tk.Tk()
         root.withdraw()
         file = filedialog.askopenfile(filetypes=[('Plague files','*.plague')])
@@ -183,7 +196,7 @@ class ContainerBox(BoxLayout):
         project_file = file.name
         filelines = file.readlines()
         file.close()
-        video_file               = filelines[1].rstrip()
+        audio_file               = filelines[1].rstrip()
         self.ids.inp_start0.text = filelines[2].rstrip()
         self.ids.inp_start1.text = filelines[3].rstrip()
         self.ids.inp_start2.text = filelines[4].rstrip()
@@ -230,7 +243,7 @@ class ContainerBox(BoxLayout):
         i = i + 1
         while filelines[i] != 'LYRICSKEY\n': i = i + 1
         p7 = i
-        self.ids.VideoPlayer.source = ntpath.dirname(project_file)+"/"+video_file
+        Audio = SoundLoader.load(ntpath.dirname(project_file)+"/"+audio_file)
         Lyrics0 = ''.join(filelines[p0:p1])
         Lyrics1 = ''.join(filelines[p1+1:p2])
         Lyrics2 = ''.join(filelines[p2+1:p3])
@@ -254,7 +267,7 @@ class ContainerBox(BoxLayout):
     def save_data(self):
         s = ""
         s+=(ntpath.basename(project_file) + "\n")
-        s+=(video_file + "\n")
+        s+=(audio_file + "\n")
         s+=(self.ids.inp_start0.text + "\n")
         s+=(self.ids.inp_start1.text + "\n")
         s+=(self.ids.inp_start2.text + "\n")
