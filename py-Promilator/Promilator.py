@@ -23,22 +23,23 @@ global Weight
 global Gender
 global PercentageVal
 global UnitsizeVal
+global BAC_24h
 Promile = float(0)
 DataTime = list()
 DataBAC = list()
 Weight = 70000
 Gender = "Male"
-PercentageVal = float(0)
-UnitsizeVal = float(0)
+PercentageVal = int(9)
+UnitsizeVal = int(330)
+BAC_24h = int(0)
         
-class ContainerBox(BoxLayout):
+class MainWindow(FloatLayout):
 
     # Init
     def __init__(self, **kwargs):
-        super(ContainerBox, self).__init__(**kwargs)
+        super(MainWindow, self).__init__(**kwargs)
         Clock.schedule_interval(self.Refresh, 1)
-    def close_app(self):
-        App.get_running_app().stop()
+        self.UpdateInfo()
     
     # Update text
     def Refresh(self, *args):
@@ -47,9 +48,13 @@ class ContainerBox(BoxLayout):
         self.ids.lbl_promile.text = "%s" % (format(Promile,'.3f'))
 
     # Add unit
-    def Add(self, ml, percentage, minutes_past):
+    def Add(self, ml, percentage):
         global DataTime
         global DataBAC
+        minutes_past = 0
+        if percentage == 99:
+            percentage = PercentageVal
+            ml = UnitsizeVal
         if Gender == "Male": GenderVal = 0.68
         else:                GenderVal = 0.55
         Dose = (ml * percentage) / 100 * 0.789
@@ -57,11 +62,25 @@ class ContainerBox(BoxLayout):
         DataBAC.append(int(BAC * 1000000))
         DataTime.append(int(time.time()) - minutes_past * 60)
         self.UpdatePromile()
+        self.UpdateInfo()
 
+    def UpdateCustom(self):
+        global PercentageVal
+        global UnitsizeVal
+        PercentageVal = int(self.ids.AlcoholSlider.value)
+        UnitsizeVal = int(self.ids.UnitsizeSlider.value)
+        self.ids.lbl_custom.text = "%sml %s%s" % (UnitsizeVal,PercentageVal,"%")
+
+    def UpdateInfo(self):
+        self.ids.lbl_settings.text = "Settings: Gender = %s, Weight = %skg" % (Gender,Weight/1000)
+        self.ids.lbl_stats.text = "Stats: Total alcohol (BAC) consumed = %s, Past 24 hours = %s" % (sum(DataBAC)/1000,BAC_24h/1000)
+    
     # Data processing
     def UpdatePromile(self):
         global Promile
+        global BAC_24h
         Promile = 0.0
+        BAC_24h = 0
         Stamps = list()
         timenow = int(time.time())
         Stamps.append(0)
@@ -71,6 +90,7 @@ class ContainerBox(BoxLayout):
             for i in range(len(DataBAC)):
                 if int((timenow - DataTime[i]) / 900) == 95 - j:
                     Stamps[j+1] += DataBAC[i]
+                    BAC_24h += DataBAC[i]
         Promile = float(Stamps[96]) / 1000
         # Update graph
         plot = MeshLinePlot(color=[1, 0, 0, 1])
@@ -78,10 +98,26 @@ class ContainerBox(BoxLayout):
         for old in self.ids.plotter.plots:
             self.ids.plotter.remove_plot(old)
         self.ids.plotter.add_plot(plot)
-  
+
+
+#main = MainWindow()
+
+class ButtonBeerSmall(ButtonBehavior, Image):  
+    pass
+class ButtonBeerMid(ButtonBehavior, Image):  
+    pass
+class ButtonBeerBig(ButtonBehavior, Image):  
+    pass
+class ButtonWine(ButtonBehavior, Image):  
+    pass
+class ButtonGin(ButtonBehavior, Image):  
+    pass
+class ButtonCustom(ButtonBehavior, Image):  
+    pass
+
 class Promilator_mainApp(App):
     def build(self):
-        return ContainerBox()
+        return MainWindow()
 
 if __name__ == '__main__':
     Promilator_mainApp().run()

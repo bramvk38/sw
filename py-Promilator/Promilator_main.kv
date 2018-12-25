@@ -1,76 +1,95 @@
-<ContainerBox>:
+<MainWindow>:
         FloatLayout:
                 GridLayout:
                         id: MenuBar
                         size_hint: 1, 0.04
                         pos_hint:{"x":0, "y":.96}
-                        cols: 6
+                        cols: 2
                         orientation: 'horizontal'
                         Button:
-                                text: 'Add now'
-                                on_release: root.Add(350,5,0)
-                        Button:
-                                text: 'Add hour ago'
+                                text: 'Stats'
                                 on_release: root.Add(350,5,60)
                         Button:
-                                text: 'Add 2 hours ago'
-                                on_release: root.Add(350,5,120)
-                        Button:
-                                text: 'Add 8 hours ago'
-                                on_release: root.Add(350,5,480)
-                        Button:
-                                text: 'Export .mp4'
-                                on_release: root.Add(350,5,90)
-                        Button:
-                                text: 'Exit'
-                                on_release: root.close_app()
+                                text: 'Settings'
+                                on_release: root.Add(350,5,60)
                 Label:
                         id: lbl_promile
-                        size_hint: 1, .15
-                        pos_hint:{"x":0, "y":.75}
-                        font_size: 60
+                        size_hint: 1, .2
+                        pos_hint:{"x":0, "y":.74}
+                        font_size: 80
                 Graph:
                         id: plotter
-                        size_hint: .96, .25
-                        pos_hint:{"x":0, "y":.5}
+                        size_hint: .96, .16
+                        pos_hint:{"x":0, "y":.56}
                         ymin:-1
                         ymax:6
                         xlabel:"hours"
                         ylabel:"promile"
                         x_ticks_major:4
                         x_grid:True
-                Image:
-                        id: beer_small
-                        size_hint: .25, .11
-                        pos_hint:{"x":0, "y":.38}
+                ButtonBeerSmall:
+                        size_hint: .25, .1
+                        pos_hint:{"x":0, "y":.45}
                         source:'images/beer_small.png'
-                Image:
-                        id: beer_mid
-                        size_hint: .25, .11
-                        pos_hint:{"x":.25, "y":.38}
+                        on_press: root.Add(250,5)
+                Label:
+                        size_hint: .25, .03
+                        pos_hint:{"x":0, "y":.41}
+                        text: "250ml 5%"
+                        font_size: 12
+                ButtonBeerMid:
+                        size_hint: .25, .1
+                        pos_hint:{"x":.25, "y":.45}
                         source:'images/beer_mid.png'
-                Image:
-                        id: beer_big
-                        size_hint: .25, .11
-                        pos_hint:{"x":.5, "y":.38}
+                        on_press: root.Add(300,5)
+                Label:
+                        size_hint: .25, .03
+                        pos_hint:{"x":.25, "y":.41}
+                        text: "300ml 5%"
+                        font_size: 12
+                ButtonBeerBig:
+                        size_hint: .25, .1
+                        pos_hint:{"x":.5, "y":.45}
                         source:'images/beer_big.png'
-                Image:
-                        id: wine
-                        size_hint: .25, .11
-                        pos_hint:{"x":0, "y":.26}
+                        on_press: root.Add(500,5)
+                Label:
+                        size_hint: .25, .03
+                        pos_hint:{"x":.5, "y":.41}
+                        text: "500ml 5%"
+                        font_size: 12
+                ButtonWine:
+                        size_hint: .25, .1
+                        pos_hint:{"x":0, "y":.3}
                         source:'images/wine.png'
-                Image:
-                        id: gin
-                        size_hint: .25, .11
-                        pos_hint:{"x":.25, "y":.26}
+                        on_press: root.Add(100,12)
+                Label:
+                        size_hint: .25, .03
+                        pos_hint:{"x":0, "y":.26}
+                        text: "100ml 12%"
+                        font_size: 12
+                ButtonGin:
+                        size_hint: .25, .1
+                        pos_hint:{"x":.25, "y":.3}
                         source:'images/gin.png'
-                Image:
-                        id: custom
-                        size_hint: .25, .11
-                        pos_hint:{"x":.5, "y":.26}
+                        on_press: root.Add(35,40)
+                Label:
+                        size_hint: .25, .03
+                        pos_hint:{"x":.25, "y":.26}
+                        text: "35ml 40%"
+                        font_size: 12
+                ButtonCustom:
+                        size_hint: .25, .1
+                        pos_hint:{"x":.5, "y":.3}
                         source:'images/custom.png'
+                        on_press: root.Add(1,99)
+                Label:
+                        id: lbl_custom
+                        size_hint: .25, .03
+                        pos_hint:{"x":.5, "y":.26}
+                        text: "330ml 9%"
+                        font_size: 12
                 GridLayout:
-                        size_hint: .24, 0.11
+                        size_hint: .24, 0.1
                         pos_hint:{"x":.75, "y":.38}
                         cols: 3
                         orientation: 'horizontal'
@@ -88,3 +107,38 @@
                         size_hint: .24, 0.11
                         pos_hint:{"x":.75, "y":.26}
                         text: "NOW"
+                Slider:
+                        id: AlcoholSlider
+                        min: 0
+                        max: 90
+                        value: 9
+                        size_hint: .75, .05
+                        pos_hint:{"x":0, "y":.2}
+                        on_touch_up: root.UpdateCustom()
+                Slider:
+                        id: UnitsizeSlider
+                        min: 1
+                        max: 999
+                        value: 330
+                        size_hint: .75, .05
+                        pos_hint:{"x":0, "y":.15}
+                Label:
+                        id: lbl_settings
+                        size_hint: 1, 0.04
+                        pos_hint:{"x":0, "y":.09}
+                        font_size: 16
+                        color: [250, 106, 188, 1]
+                        text: "Initializing..."
+                Label:
+                        id: lbl_stats
+                        size_hint: 1, 0.04
+                        pos_hint:{"x":0, "y":.05}
+                        font_size: 16
+                        color: [250, 106, 188, 1]
+                        text: "Initializing..."
+                Label:
+                        size_hint: 1, 0.04
+                        pos_hint:{"x":0, "y":0}
+                        font_size: 12
+                        color: [105, 106, 188, 1]
+                        text: "Platypus Engineering 2018 - Promilator App v1.002"
